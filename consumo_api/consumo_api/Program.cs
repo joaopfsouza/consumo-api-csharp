@@ -5,9 +5,10 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using System.Text;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace consumo_api
 {
@@ -31,23 +32,13 @@ namespace consumo_api
                     {
                         response.EnsureSuccessStatusCode();
                         string responseBody = await response.Content.ReadAsStringAsync();
-                        JObject json = JObject.Parse(responseBody);
 
-                        IList<string> projectTFS = json.SelectToken("value").ToList().Select(s =>
+                        RootFile products = JsonConvert.DeserializeObject<RootFile>(responseBody);
+
+                        foreach (var p in products.Value)
                         {
-                            Console.WriteLine(s.SelectToken("name").Value<string>());
-                            return "teste";
-
-                        }).ToList();
-
-                        //foreach (var item in projectTFS)
-                        //{
-                        //    Console.WriteLine(item);
-                        //}
-
-                        //IEnumerable<JToken> 
-
-                        //Console.WriteLine(json.SelectToken());
+                            Console.WriteLine(p.Name);
+                        }
                     }
 
 
@@ -61,6 +52,24 @@ namespace consumo_api
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+
+        private static void SemObjeto(string responseBody)
+        {
+            JObject json = JObject.Parse(responseBody);
+
+            IList<string> projectTFS = json.SelectToken("value").ToList().Select(s =>
+            {
+                Console.WriteLine(s.SelectToken("name").Value<string>());
+                return "teste";
+
+            }).ToList();
+
+            foreach (var item in projectTFS)
+            {
+                Console.WriteLine(item);
+            }
+
         }
 
         private static void ApiPostTest()
